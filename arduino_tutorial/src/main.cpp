@@ -49,6 +49,6 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Serial.println("Setup successfull. Ready to comunicate!");    
+  Serial.println("Setup successfull. Ready to comunicate!");
   delay(2000);
 }
