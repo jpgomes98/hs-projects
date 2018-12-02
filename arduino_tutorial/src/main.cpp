@@ -7,16 +7,28 @@
 #define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
-// definir a classe que processa a chegada de dados e a forma como sao apresentados no serial monitor
+using namespace std;
+
+int led = 13;
+
+// definir a classe que processa a chegada de dados
+// a forma como sao apresentados no serial monitor
+// acende o LED a cada chegada de dados
 
 class MyCallbacks: public BLECharacteristicCallbacks {
+    int callbacksCheckPin;
+  public:
+    MyCallbacks (int initPin): callbacksCheckPin(initPin) {}
     void onWrite(BLECharacteristic *pCharacteristic) {
-      std::string value = pCharacteristic->getValue();
+      string value = pCharacteristic->getValue();
       if (value.length() > 0) {
+        digitalWrite(callbacksCheckPin, HIGH);
         Serial.print("\r\nNew value: ");
         for (int i = 0; i < value.length(); i++)
           Serial.print(value[i]);
         Serial.println();
+        delay(500);
+        digitalWrite(callbacksCheckPin, LOW);
       }
     }
 };
@@ -25,7 +37,8 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  Serial.println("Setting up BLE server...");
+
+  pinMode(led, OUTPUT);
 
   // iniciar o servidor na placa
   BLEDevice::init("ESP32 BLE example");
@@ -38,7 +51,7 @@ void setup() {
                                           BLECharacteristic::PROPERTY_WRITE
                                         );
 
-  pCharacteristic->setCallbacks(new MyCallbacks());
+  pCharacteristic->setCallbacks(new MyCallbacks(led));
 
   pCharacteristic->setValue("Hello World");
   pService->start();
@@ -51,4 +64,8 @@ void loop() {
   // put your main code here, to run repeatedly:
   Serial.println("Setup successfull. Ready to comunicate!");
   delay(2000);
+  /*digitalWrite(led, HIGH);
+  delay(1000);
+  digitalWrite(led, LOW);*/
+
 }
